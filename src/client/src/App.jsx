@@ -1,94 +1,58 @@
 
-import { useState, useEffect } from "react";
-import settings from "./config/settings.json"
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import React, { useState} from "react";
+import settings from "./config/settings.json";
 
 
 function App() {
-    //responses holds all possible responses for 8 ball fortune
-    let [responses, setResponses] = useState([]);
-    //random phrase will be the random one response from the response object array
-    //set initially to empty string
-    let [randomPhrase, setRandomPhrase] = useState("");
+    
+  const [emailAddress, setEmailAddress] = useState("");
 
-    const {
-      transcript,
-      listening,
-      browserSupportsSpeechRecognition,
-    } = useSpeechRecognition();
+  function onSubmit(event) {
+      event.preventDefault();
 
-    function shake(){
-      let ball= document.getElementById("ball")
-      //css animation
-      ball.classList.add("shake");
-      //remove shake class
-      setTimeout(function(){ ball.classList.remove("shake"); }, 1500);
-    }
+      setEmailAddress("someone@somewhere.com");
 
-    function listen() {
-      setRandomPhrase("");
-      SpeechRecognition.startListening();
-    }
+      let reqBody = {
+          emailAddress,
+      };
 
-    //update fortune(random phrase) on an event
-    function updatePhrase() {
-      SpeechRecognition.stopListening();
-        setRandomPhrase("");
-        shake();
-        setTimeout(() => {
-
-          if (transcript.toLowerCase().includes("javascript")) {
-            setRandomPhrase("JAVASCRIPT RULES!!!")
-          }else {
-            let random = responses[Math.floor(Math.random()*responses.length)];
-            setRandomPhrase(`${random.Phrase}`);
-          
-          }
-        }, 1200);  
-
-
-    };
-
-    //get 8 ball responses on initial load (when component mounts)
-    useEffect( () => {
-      console.log("did mount");
-      fetch(`${settings.serverUrl}/api/responses`)
+      fetch(`${settings.serverUrl}/api/addUser`, {
+          method: "P0ST", 
+          headers: {
+              "Content-Type" : "application/json"
+          },
+          body: JSON.stringify(reqBody),
+      })
           .then((res) => res.json())
-          .then((data) => setResponses(data))
-          .catch((err) => {
-            console.error(err);
-            setResponses("Could not connect to test api endpoint :(");
-          });    
-      }, []);
-  
-    if (!browserSupportsSpeechRecognition) {
-      return <span>Browser doesn't support speech recognition.</span>;
-    }
+          .then((data) => console.log(data))
+          .catch((err) => console.error(err));
+  }
+
 
   return (
-      <div className="App; center">
-      <h2>MAGIC 8 BALL</h2>
-      <hr/>
-          <div className="wrapper">
-                <div>
-                  <img id="ball"  alt="Magic 8 Ball" src="/images/8ball.png"/>
-                </div>
-                <div>
-                  <p>Microphone: {listening ? "on" : "off"}</p>
-                  <button id="btnAsk" onClick={listen}>Ask Me Anything</button>
-                  <p>{transcript}? </p>
-                  <button id="btnFortune" onClick={updatePhrase}>Get Fortune </button>
-                  <p className="fortune"> {randomPhrase}</p>
-                </div>
-                
-          
-        </div>
+      <div className="App">
+          <header>
+              <h1>Add a User</h1>
+              <hr/>
+              <div>
+              <button onClick={onSubmit}>Add User</button>
+              {/* <form onSubmit={onSubmit}>
+                  <div className="user-form">
+                      <label htmlFor="emailAddress">Email Address:&nbsp;</label>
+                      <input 
+                        type="text" 
+                        value={emailAddress} 
+                        onChange={(event) => setEmailAddress(event.target.value)}>
+                      </input>
+                  </div>
+                  <div className="user-form">
+                      <input type="submit">Add</input>
+                  </div>
+              </form> */}
+              </div>
+          </header>
       </div>
-    
-      
-    );
+  );
 }
 
 export default App;
