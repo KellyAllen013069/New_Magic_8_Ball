@@ -15,7 +15,15 @@ app.use(express.json());
 /**
  * Enables incoming requests from cross origin domains
  */
-app.use(cors());
+app.use(cors(
+{
+  origin: ["http://localhost/5001", "http://localhost/3000", "http://localhost/5001/api/addUser"],
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true,
+  allowedHeaders: true,
+}
+
+));
 
 /**
  * Logs incoming request information to the dev console

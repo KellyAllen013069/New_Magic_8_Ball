@@ -20,8 +20,10 @@ router.get("/responses", async (req, res, next) => {
 
 router.post("/addUser", async (req, res, next) => {
   try {
+    console.log("in here");
     let userDTO = req.body;
     let data = await usersController.addUser(userDTO);
+    console.log(data);
     res.json(data);
   } catch (err) {
     console.log(err);
